@@ -21,6 +21,42 @@ Messages are enabled by default
 
 Can be disabled by seting variable IGNORE_FIXME on non-zero'
 
-fixme() {
-    [ -z "$IGNORE_FIXME" ] && printf 'FIXME: %s\n' "$1"
+
+# Failed experiment
+# thing() {
+# 	arg="$1"
+
+# 	# FIXME: Expecting EFIXME_PREFIX set based on 'arg' variable
+# 	if [ -z "$EDEBUG_PREFIX" ]; then
+# 		printf "$EDEBUG_PREFIX: %s\\n" "$1"
+# 		return 0
+# 	# FIXME: Expecting EFIXME_PREFIX set based on 'arg' variable
+# 	elif [ -z "$EDEBUG_PREFIX" ]; then
+# 		printf "${arg^^}: %s\\n" "$1"
+# 		return 0
+# 	else
+# 		# Do not depend on die() here
+# 		printf 'FATAL: %s\n' "Unexpected happend while exporting fixme message"
+# 		exit 255
+# 	fi
+# }
+
+# efixme_new() {
+# 	thing efixme
+# }
+
+
+efixme() {
+	# Ugly, but this way it doesn't have to process following if statement on runtime
+	[ -z "$IGNORE_FIXME" ] && if [ -z "$EFIXME_PREFIX" ]; then
+		printf "$EFIXME_PREFIX: %s\\n" "$1"
+		return 0
+	elif [ -z "$EFIXME_PREFIX" ]; then
+		printf 'FIXME: %s\n' "$1"
+		return 0
+	else
+		# Do not depend on die() here
+		printf 'FATAL: %s\n' "Unexpected happend while exporting fixme message"
+		exit 255
+	fi
 }

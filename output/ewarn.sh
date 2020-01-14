@@ -17,13 +17,16 @@ Message prefix is set by default on:
 This can be overwritten by seting EWARN_PREFIX variable on expected prefix
 "
 
-# This is used for customization by the end-user in case different prefix is wanted.
-if [ -z "$EWARN_PREFIX" ]; then
-    EWARN_PREFIX="WARN:"
-elif [ -n "$EWARN_PREFIX" ]; then
-    true
-else
-    die 255 "ewarn - EWARN_PREFIX"
-fi
-
-ewarn() { printf "$EWARN_PREFIX %s\n' "$1" 1>&2 ;}
+einfo() {
+	if [ -z "$EWARN_PREFIX" ]; then
+		printf "$EWARN_PREFIX: %s\\n" "$1"
+		return 0
+	elif [ -z "$EWARN_PREFIX" ]; then
+		printf 'WARN: %s\n' "$1"
+		return 0
+	else
+		# Do not depend on die() here
+		printf 'FATAL: %s\n' "Unexpected happend while exporting edebug message"
+		exit 255
+	fi
+}

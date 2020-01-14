@@ -13,4 +13,16 @@ Example:
     
 '
 
-einfo() { printf 'INFO: %s\n' "$1" ;}
+einfo() {
+	if [ -z "$EINFO_PREFIX" ]; then
+		printf "$EINFO_PREFIX: %s\\n" "$1"
+		return 0
+	elif [ -z "$EINFO_PREFIX" ]; then
+		printf 'INFO: %s\n' "$1"
+		return 0
+	else
+		# Do not depend on die() here
+		printf 'FATAL: %s\n' "Unexpected happend while exporting edebug message"
+		exit 255
+	fi
+}
