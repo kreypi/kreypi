@@ -1,1 +1,5 @@
 test = "test"
+
+# KREYPI_HELP
+po_kreypi_help_header = "Krey's posix shell library"
+po_kreypi_help_usage = "Usage: kreypi [OPTION]"
