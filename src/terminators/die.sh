@@ -16,8 +16,8 @@ ERROR CODES:
     126 - Not executable
     130 - Killed by the end-user
     255 - Unexpected
-    ping - output ping (used for development)
-    fixme - Used to output fatal error about unimplemented feature
+    ping - output ping (used for development returns 1)
+    fixme - Used to output fatal error about unimplemented feature (returns 1)
 
 Example:
 
