@@ -4,12 +4,12 @@
 : '
 Command used to output verbose messages for development that are considered as too many informations for the end-user
 
-SYNOPSIS: edebug [message]
+SYNOPSIS: edebug "[message]"
 
 Example:
 
 		if command -v wget >/dev/null; then
-			edebug "Executing command curl to download some_url in some_path"
+			edebug "Executing command wget to download some_url in some_path"
 			wget some_url -O some_path
 		fi
 '

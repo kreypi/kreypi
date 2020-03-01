@@ -9,72 +9,88 @@ SYNOPSIS: die [error_code] (message)
 This command is made to be compatible with POSIX sh and bash
 
 ERROR CODES:
-    0 - General true
-    1 - General false
-    2 - Syntax error
-    3 - Permission issue
-    126 - Not executable
-    130 - Killed by the end-user
-    255 - Unexpected
-    ping - output ping (used for development returns 1)
-    fixme - Used to output fatal error about unimplemented feature (returns 1)
+  0 - General true
+  1 - General false
+  2 - Syntax error
+  3 - Permission issue
+  126 - Not executable
+  130 - Killed by the end-user
+  255 - Unexpected
+  ping - output ping (used for development returns 1)
+  fixme - Used to output fatal error about unimplemented feature (returns 1)
 
 Example:
 
-    if ! command -v wget >/dev/null; then die 126 "Command wget is not executable"; fi
+  if ! command -v wget >/dev/null; then die 126 "Command wget is not executable"; fi
+
+  would result in `FATAL: Command wget is not executable` on a system with DIE_PREFIX="FATAL:" and non-executable wget in PATH
+
+Prefix:
+
+  Prefix of this output can be defined by exporting DIE_PREFIX environment variable
+
+  for example: DIE_PREFIX="hey" would result in errors alike: "hey error_message_here"
+
+  This is used for end-user customization of the output
 
 References:
-    - Exit codes - http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF
+  - Exit codes - http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF
 '
 
+# Define DIE_PREFIX
 if [ -z "$DIE_PREFIX" ]; then
-    case $LANG in
-        en*) DIE_PREFIX="FATAL:" ;;
-        cz*) DIE_PREFIX="FATALNÍ:" ;;
-        sk*) DIE_PREFIX="ČOBOLO:" ;;
-        *) DIE_PREFIX="FATAL:"
-    esac
+	case $LANG in
+		cz*) DIE_PREFIX="FATALNÍ:" ;;
+		sk*) DIE_PREFIX="ČOBOLO:" ;;
+		en*|*) DIE_PREFIX="FATAL:"
+	esac
 elif [ -z "$DIE_PREFIX" ]; then
-    true # DIE_PREFIX set by the end-user
+	true # DIE_PREFIX set by the end-user
 else
-    # Do not use die here since it is not sourced yet
-    printf 'FATAL: %s\n' "Unexpected happend in DIE_PREFIX for die.sh"
-    exit 255
+	# Do not use die here since it is not sourced yet
+	printf 'FATAL: %s\n' "Unexpected happend in DIE_PREFIX for die.sh"
+	exit 255
 fi
 
 die() {
-    # Capture arguments
+	# Capture arguments
 	err_code="$1"
 	message="$2"
 
-    # POSIX compatibility for FUNCNAME
-    if [ -z "$FUNCNAME" ]; then
-        MYFUNCNAME="die" # INFO: This has to be changed in case function name changes!
-    elif [ -n "$FUNCNAME" ]; then
-        MYFUNCNAME="${FUNCNAME[0]}"
-    else
-        # Do not use die here since it is not sourced yet
-        printf 'FATAL: %s\n' "Unexpected happend in die() - FUNCNAME"
-        exit 255
-    fi
+	# POSIX compatibility for FUNCNAME
+	if [ -z "$FUNCNAME" ]; then
+		# INFO: This has to be changed in case function name changes!
+		MYFUNCNAME="die"
+	elif [ -n "$FUNCNAME" ]; then
+		MYFUNCNAME="${FUNCNAME[0]}"
+	else
+		# Do not use die here since it is not sourced yet
+		printf 'FATAL: %s\n' "Unexpected happend in die() - FUNCNAME"
+		exit 255
+	fi
 
-	# HELPER: Handle the output of the command for those that are outputing only `FATAL: message`
+	# HELPER: Handle the output of the command for those that are outputing message that is not hard-codded
 	die_output() {
-		if [ -n "$message" ]; then
-            printf "$DIE_PREFIX %s\\n" "$messge" 1>&2
-		elif [ -z "$message" ]; then
+		if [ -n "$DIE_message" ]; then
+			printf "$DIE_PREFIX %s\\n" "$DIE_message" 1>&2
+		elif [ -z "$DIE_message" ]; then
 			die_message
 		else
 			die 255 "$MYFUNCNAME, $err_code"
 		fi
+
+		# Allows unsetting all variables defined in 'masterUnset' prior to exit
+		[ -n "$masterUnset" ] && unset masterUnset
 
 		exit "$err_code"
 	}
 
 	case "$err_code" in
 		0|true)
-			edebug "Function $MYFUNCNAME returned true"
-			return 0 # Do not terminate if error code '0' is used
+			edebug "Function $MYFUNCNAME returned true for $*"
+
+			# Do not terminate if error code '0' is used
+			return 0
 		;;
 		1|false) # False
 			die_message() {
@@ -105,44 +121,47 @@ die() {
 			die_output
 		;;
 		126) # Not executable
-            die_message() {
-                case $LANG in
-                    en*) printf "$DIE_PREFIX %s\\n" "Error code $err_code has been parsed in $MYFUNCNAME which is used for not executable"
-                esac
-            }
+			die_message() {
+				case $LANG in
+					en*) printf "$DIE_PREFIX %s\\n" "Error code $err_code has been parsed in $MYFUNCNAME which is used for not executable"
+				esac
+			}
 
-            die_output
+			die_output
 		;;
-		130) # Killed by user
-            die_message() {
-                case $LANG in
-                    en*) printf "$DIE_PREFIX %s\\n" "Error code $err_code has been parsed in $MYFUNCNAME indicating that command was killed by user"
-                esac
-            }
+		130) # Killed by user i.e used 'CTRL+C'
+			die_message() {
+				case $LANG in
+					en*) printf "$DIE_PREFIX %s\\n" "Error code $err_code has been parsed in $MYFUNCNAME indicating that command was killed by user"
+				esac
+			}
 
-            die_output
+			die_output
 		;;
 		255) # Unexpected
-		    die_message() {
-			    case $LANG in
-				    en*) printf "$DIE_PREFIX %s\\n" "Unexpected result in '$message'" ;;
-				    *) printf "$DIE_PREFIX %s\\n" "Unexpected result in '$message'"
-			    esac
-		    }
+			die_message() {
+				case $LANG in
+					en*) printf "$DIE_PREFIX %s\\n" "Unexpected result in '$DIE_message'" ;;
+					*) printf "$DIE_PREFIX %s\\n" "Unexpected result in '$DIE_message'"
+				esac
+			}
 
-		    die_output
+			die_output
 		;;
-        ping) # Ping used for development
-            printf "$DIE_PREFIX %s\\n" "! ! ! P I N G ! ! !"
-            exit 1
-        ;;
+		ping) # Ping used for development
+			printf "$DIE_PREFIX %s\\n" "! ! ! P I N G ! ! !"
+			[ -n "$masterUnset" ] && unset masterUnset
+			exit 1
+		;;
 		*) # In case wrong syntax was used
-            case $LANG in
-                en*) printf "$DIE_PREFIX %s\\n" "Wrong argument '$err_code' has been parsed in die()"
-            esac
+			case $LANG in
+				en*) printf "$DIE_PREFIX %s\\n" "Wrong argument '$err_code' has been parsed in die()"
+			esac
 
-            exit 2
+			exit 2
 	esac
 
-	unset err_code message MYFUNCNAME
+	# Master Unset
+	[ "$DIE_PREFIX" = "FATAL:" ] && unset DIE_PREFIX
+	unset err_code DIE_message MYFUNCNAME
 }

@@ -10,15 +10,29 @@ checkroot() {
 
 	if [ "$(id -u)" = 0 ]; then
 		return 0
-	elif command -v sudo >/dev/null && [ -n "$KREYPI_CHECKROOT_USE_SUDO" ] && [ -n "$(id -u)" ]; then
-		info "Failed to aquire root permission, trying reinvoking with 'sudo' prefix"
-		exec sudo "$0 -c \"$*\""
-	elif ! command -v sudo >/dev/null && [ -n "$KREYREN" ] && [ -n "$(id -u)" ]; then
+	elif command -v sudo >/dev/null && [ -n "$KREYPI_CHECKROOT_USE_SUDO" ] && [ "$(id -u)" != 0 ]; then
+		einfo "Failed to aquire root permission, trying reinvoking with 'sudo' prefix"
+
+		if [ "$0" = sh ]; then
+			die fixme "Kreypi's checkroot does not work on POSIX sh"
+		elif [ "$0" != sh ]; then
+			exec sudo "$0 -c \"$*\""
+		else
+			die 256 "Kreypi's checkroot core exec"
+		fi
+	elif ! command -v sudo >/dev/null && [ -n "$KREPI_CHECKROOT_WORKAROUND_ROOT" ] && [ "$(id -u)" != 0 ]; then
 		einfo "Failed to aquire root permission, trying reinvoking as root user."
-		exec su -c "$0 $*"
+
+		if [ "$0" = sh ]; then
+			die fixme "Kreypi's checkroot does not work on POSIX sh"
+		elif [ "$0" != sh ]; then
+			exec su -c "$0 $*"
+		else
+			die 256 "Kreypi's checkroot core exec sudoless"
+		fi
 	elif [ "$(id -u)" != 0 ]; then
 		die 3
 	else
-		die 255 "checkroot"
+		die 255 "Kreypi's checkroot"
 	fi
 }
