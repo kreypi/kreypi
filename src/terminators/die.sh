@@ -1,41 +1,39 @@
 #!/bin/sh
 # Created by Jacob Hrbek <kreyren@rixotstudio.cz> in 2019 under the terms of GPL-3 (https://www.gnu.org/licenses/gpl-3.0.en.html)
 
-: '
-function used to terminate the program if provided error code is non-zero and output a custom message with options for translate
-
-SYNOPSIS: die [error_code] (message)
-
-This command is made to be compatible with POSIX sh and bash
-
-ERROR CODES:
-  0 - General true
-  1 - General false
-  2 - Syntax error
-  3 - Permission issue
-  126 - Not executable
-  130 - Killed by the end-user
-  255 - Unexpected
-  ping - output ping (used for development returns 1)
-  fixme - Used to output fatal error about unimplemented feature (returns 1)
-
-Example:
-
-  if ! command -v wget >/dev/null; then die 126 "Command wget is not executable"; fi
-
-  would result in `FATAL: Command wget is not executable` on a system with DIE_PREFIX="FATAL:" and non-executable wget in PATH
-
-Prefix:
-
-  Prefix of this output can be defined by exporting DIE_PREFIX environment variable
-
-  for example: DIE_PREFIX="hey" would result in errors alike: "hey error_message_here"
-
-  This is used for end-user customization of the output
-
-References:
-  - Exit codes - http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF
-'
+### function used to terminate the program if provided error code is non-zero and output a custom message with options for translate
+###
+### SYNOPSIS: die [error_code] (message)
+###
+### This command is made to be compatible with POSIX sh and bash
+###
+### ERROR CODES:
+###  0 - General true
+###  1 - General false
+###  2 - Syntax error
+###  3 - Permission issue
+###  126 - Not executable
+###  130 - Killed by the end-user
+###  255 - Unexpected
+###  ping - output ping (used for development returns 1)
+###  fixme - Used to output fatal error about unimplemented feature (returns 1)
+###
+### Example:
+###
+###  if ! command -v wget >/dev/null; then die 126 "Command wget is not executable"; fi
+###
+###  would result in `FATAL: Command wget is not executable` on a system with DIE_PREFIX="FATAL:" and non-executable wget in PATH
+###
+### Prefix:
+###
+###  Prefix of this output can be defined by exporting DIE_PREFIX environment variable
+###
+###  for example: DIE_PREFIX="hey" would result in errors alike: "hey error_message_here"
+###
+###  This is used for end-user customization of the output
+###
+### References:
+###  - Exit codes - http://tldp.org/LDP/abs/html/exitcodes.html#EXITCODESREF
 
 # Define DIE_PREFIX
 if [ -z "$DIE_PREFIX" ]; then

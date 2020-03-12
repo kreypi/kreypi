@@ -1,18 +1,16 @@
 #!/bin/sh
 # Created by Jacob Hrbek <kreyren@rixotstudio.cz> in 2019 under GPL-3 (https://www.gnu.org/licenses/gpl-3.0.en.html) license
 
-: '
-Command used to output verbose messages for development that are considered as too many informations for the end-user
-
-SYNOPSIS: edebug "[message]"
-
-Example:
-
-		if command -v wget >/dev/null; then
-			edebug "Executing command wget to download some_url in some_path"
-			wget some_url -O some_path
-		fi
-'
+### Command used to output verbose messages for development that are considered as too many informations for the end-user
+###
+### SYNOPSIS: edebug "[message]"
+###
+### Example:
+###
+###    if command -v wget >/dev/null; then
+###        edebug "Executing command wget to download some_url in some_path"
+###        wget some_url -O some_path
+###    fi
 
 edebug() {
 	# Ugly, but this way it doesn't have to process following if statement on runtime
