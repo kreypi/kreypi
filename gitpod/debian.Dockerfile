@@ -26,3 +26,6 @@ RUN true \
   # FIXME: Sanitize
   && apt update \
   && if apt list --installed | grep -qP "^shellcheck\s{1}-.*"; then apt install -y shellcheck; fi
+
+# Export PS1
+RUN if ! grep -qP "^PS1=\".*\"" "$HOME/.bashrc"; then printf '%s\n' 'export PS1="\033[1m\e[38;5;201m[ \t : \w : EXIT \$? ]\033[0m\e[38;5;011m\n\u@gitpod \\$ \[$(tput sgr0)\]"' >> "$HOME/.bashrc"; fi
