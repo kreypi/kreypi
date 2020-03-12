@@ -153,6 +153,40 @@ die() {
 			[ -n "$masterUnset" ] && unset masterUnset
 			exit 1
 		;;
+		help|--help|-help|pomoc|--pomoc|-pomoc)
+			case $LANG in
+				cz-*) printf '%s\n' ;;
+				en-*|*) printf '%s\n' \
+					"Usage: die [ERROR_CODE] \"(message)\"" \
+					"Assertion wrapper with ability to specify exit code through supported ERROR_CODE and message" \
+					"" \
+					"ERROR_CODE:" \
+					"  0 - General true" \
+					"  1 - General false" \
+					"  2 - Syntax error" \
+					"  3 - Permission issue" \
+					"  126 - Not executable" \
+					"  130 - Killed by the end-user" \
+					"  255 - Unexpected" \
+					"  ping - output ping (used for development returns 1)" \
+					"  fixme - Used to output fatal error about unimplemented feature (returns 1)" \
+					"" \
+					"Report bugs to: bug-kreypi@rixotstudio.cz"
+			esac
+
+			exit 1 # Exit with 1 in case this is done by mistake
+		;;
+		-h|h) # Used to output basic usage
+			case $LANG in
+				cz-*) printf '%s\n' \
+					"Použití: die [ERROR_CODE] (message)" \
+					"Zkus 'die --help' pro více informací" ;;
+				en-*|*) printf '%s\n' \
+					"Usage: die [ERROR_CODE] (message)" \
+					"Try 'die --help' for more informations"
+			esac
+
+			exit 1 # Exit with 1 in case this is done by mistake
 		*) # In case wrong syntax was used
 			case $LANG in
 				en*) printf "$DIE_PREFIX %s\\n" "Wrong argument '$err_code' has been parsed in die()"

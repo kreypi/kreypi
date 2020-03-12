@@ -21,33 +21,27 @@ Messages are enabled by default
 
 Can be disabled by seting variable IGNORE_FIXME on non-zero'
 
-
-# Failed experiment
-# thing() {
-# 	arg="$1"
-
-# 	# FIXME: Expecting EFIXME_PREFIX set based on 'arg' variable
-# 	if [ -z "$EDEBUG_PREFIX" ]; then
-# 		printf "$EDEBUG_PREFIX: %s\\n" "$1"
-# 		return 0
-# 	# FIXME: Expecting EFIXME_PREFIX set based on 'arg' variable
-# 	elif [ -z "$EDEBUG_PREFIX" ]; then
-# 		printf "${arg^^}: %s\\n" "$1"
-# 		return 0
-# 	else
-# 		# Do not depend on die() here
-# 		printf 'FATAL: %s\n' "Unexpected happend while exporting fixme message"
-# 		exit 255
-# 	fi
-# }
-
-# efixme_new() {
-# 	thing efixme
-# }
-
-
 efixme() {
-	# Ugly, but this way it doesn't have to process following if statement on runtime
+	# Shellcompat: In case we don't have access to FUNCNAME
+	# shellcheck disable=SC2128 # False trigger
+	if [ "$FUNCNAME" != "efixme" ]; then
+		# shellcheck disable=SC2178 # False trigger
+		FUNCNAME="efixme"
+	elif [ "$FUNCNAME" = "efixme" ]; then
+		true
+	else
+		if command -v die >/dev/null; then
+			die 255 "checking for efixme FUNCNAME"
+		elif ! command -v die >/dev/null; then
+			printf 'FATAL: %s\n' "Unexpected happend while checking efixme FUNCNAME"
+			exit 255
+		else
+			printf 'FATAL: %s\n' "Unexpected happend while processing unexpected in efixme"
+			exit 255
+		fi
+	fi
+
+	# NOTICE: Ugly, but this way it doesn't have to process following if statement on runtime
 	[ -z "$IGNORE_FIXME" ] && if [ -z "$EFIXME_PREFIX" ]; then
 		printf "$EFIXME_PREFIX: %s\\n" "$1"
 		return 0
@@ -55,8 +49,15 @@ efixme() {
 		printf 'FIXME: %s\n' "$1"
 		return 0
 	else
-		# Do not depend on die() here
-		printf 'FATAL: %s\n' "Unexpected happend while exporting fixme message"
-		exit 255
+		if command -v die >/dev/null; then
+			die 255 "Unexpected happend while exporting fixme message"
+		elif ! command -v die >/dev/null; then
+			printf 'FATAL: %s\n' "Unexpected happend while exporting fixme message"
+			exit 255
+		else
+			# shellcheck disable=SC2128 # False trigger
+			printf 'FATAL: %s\n' "Unexpected happend while processing unexpected in $FUNCNAME"
+			exit 255
+		fi
 	fi
 }
