@@ -23,6 +23,6 @@ RUN useradd \
 	gitpod || exit 1
 
 RUN true \
-  && if apt list --installed | grep -qP "^shellcheck\s{1}-"; then \
-    { if apt-cache search shellcheck | grep -qP "^shellcheck\s{1}-"; then apt update; fi ;} \
-    apt install -y shellcheck; fi
+  # FIXME: Sanitize
+  && apt update 
+  && if apt list --installed | grep -qP "^shellcheck\s{1}-.*"; then apt install -y shellcheck; fi
