@@ -24,5 +24,5 @@ RUN useradd \
 
 RUN true \
   # FIXME: Sanitize
-  && apt update 
+  && apt update \
   && if apt list --installed | grep -qP "^shellcheck\s{1}-.*"; then apt install -y shellcheck; fi
