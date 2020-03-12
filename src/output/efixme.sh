@@ -1,7 +1,7 @@
 #!/bin/sh
 # Created by Jacob Hrbek <kreyren@rixotstudio.cz> in 2019 under the terms of GPL-3 (https://www.gnu.org/licenses/gpl-3.0.en.html)
 
-:'
+: '
 Command used to output a FIXME message for features that are not yet implmented
 
 SYNOPSIS: fixme [message]
@@ -20,6 +20,8 @@ Example:
 Messages are enabled by default
 
 Can be disabled by seting variable IGNORE_FIXME on non-zero'
+
+exit 1
 
 efixme() {
 	# Shellcompat: In case we don't have access to FUNCNAME
